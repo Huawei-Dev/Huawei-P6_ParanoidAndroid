@@ -1,0 +1,22 @@
+#!/sbin/sh
+
+LOG_FILE=/data/local/log.txt;
+FILENAME=/sys/devices/virtual/android_usb/android0/state
+
+cat /proc/app_info | grep -A1 "charge_flag:" | grep -q "1"
+recovery=$?
+
+if [ $recovery == 0 ] ; then
+ exit 0
+fi
+
+cat ${FILENAME} | grep "CONFIGURED" | tee -a $LOG_FILE
+rc=$? | tee -a $LOG_FILE
+
+if [ $rc == 0 ] ; then
+echo 255 > /sys/class/leds/green/brightness | tee -a $LOG_FILE
+else
+echo 255 > /sys/class/leds/red/brightness | tee -a $LOG_FILE
+fi
+
+/sbin/recovery
